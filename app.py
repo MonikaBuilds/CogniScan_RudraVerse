@@ -48,6 +48,30 @@ st.markdown(
         --panel-soft: #242321;
         --accent: #c96f3b;
     }
+    @keyframes fade-up {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes soft-pop {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.985);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
     [data-testid="stHeader"] { background: transparent; border-bottom: none; }
     [data-testid="stToolbar"] { display: none; }
     .stApp { background: var(--paper); }
@@ -59,6 +83,7 @@ st.markdown(
         padding: 2.4rem 2.5rem;
         margin-bottom: 1.25rem;
         box-shadow: 0 22px 48px rgba(23, 23, 23, 0.14);
+        animation: fade-up 520ms ease-out both;
     }
     .hero * { color: #f8f4ee !important; }
     .eyebrow {
@@ -73,6 +98,7 @@ st.markdown(
         border: 1px solid var(--line);
         border-radius: 20px;
         padding: 1.15rem 1.2rem;
+        animation: fade-up 520ms ease-out 80ms both;
     }
     .section-heading {
         margin: 0 0 1rem 0;
@@ -88,6 +114,7 @@ st.markdown(
         border-radius: 26px;
         padding: 1.15rem;
         margin-top: 0.4rem;
+        animation: fade-up 420ms ease-out both;
     }
     .stats-grid {
         display: grid;
@@ -101,6 +128,13 @@ st.markdown(
         border-radius: 18px;
         padding: 0.9rem 1rem;
         min-height: 126px;
+        animation: soft-pop 420ms ease-out both;
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 24px rgba(31, 29, 26, 0.08);
+        border-color: #d0b79d;
     }
     .stat-label {
         color: var(--muted);
@@ -129,6 +163,7 @@ st.markdown(
         border-radius: 22px;
         padding: 1rem 1.1rem;
         box-shadow: inset 4px 0 0 var(--accent);
+        animation: fade-up 420ms ease-out 60ms both;
     }
     .list-shell {
         background: rgba(252, 250, 246, 0.96);
@@ -136,6 +171,7 @@ st.markdown(
         border-radius: 22px;
         padding: 1rem 1.05rem;
         height: 100%;
+        animation: fade-up 420ms ease-out 90ms both;
     }
     .list-item {
         padding: 0.85rem 0;
@@ -154,6 +190,13 @@ st.markdown(
         border-radius: 18px;
         padding: 0.78rem 0.9rem;
         height: 100%;
+        animation: fade-up 380ms ease-out both;
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .sample-case:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 22px rgba(31, 29, 26, 0.07);
+        border-color: #d0b79d;
     }
     .sample-case h4 {
         margin: 0;
@@ -206,6 +249,7 @@ st.markdown(
         background: rgba(252, 250, 246, 0.96);
         color: var(--ink);
         font-size: 0.85rem;
+        animation: fade-in 360ms ease-out both;
     }
     .legend-dot {
         width: 0.72rem;
@@ -220,6 +264,10 @@ st.markdown(
         font-size: 0.82rem;
         font-weight: 700;
         white-space: nowrap;
+        transition: transform 180ms ease;
+    }
+    .sample-case:hover .risk-badge {
+        transform: translateY(-1px);
     }
     @media (max-width: 900px) {
         .stats-grid {
@@ -240,6 +288,13 @@ st.markdown(
         color: var(--ink) !important;
         border: 1px solid var(--line) !important;
         border-radius: 14px !important;
+        transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    }
+    .stSelectbox div[data-baseweb="select"] > div:hover,
+    .stTextArea textarea:hover,
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: #d0b79d !important;
+        box-shadow: 0 8px 20px rgba(31, 29, 26, 0.04) !important;
     }
     .stTextArea textarea::placeholder { color: var(--muted) !important; }
     .stSelectbox svg { fill: var(--muted) !important; color: var(--muted) !important; stroke: var(--muted) !important; }
@@ -256,6 +311,7 @@ st.markdown(
         box-shadow: none !important;
         padding-left: 4.2rem !important;
         position: relative !important;
+        transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease !important;
     }
     [data-testid="stFileUploaderDropzone"]::before {
         content: "?";
@@ -290,10 +346,31 @@ st.markdown(
         min-height: 50px !important;
     }
     .stButton > button:hover { background: var(--panel-soft) !important; border-color: var(--panel-soft) !important; }
+    .stButton > button {
+        transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease !important;
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 24px rgba(23, 23, 23, 0.12);
+    }
     [data-testid="stTable"] { background: rgba(252, 250, 246, 0.96); border-radius: 16px; }
     div[data-testid="stTable"] table { background: rgba(252, 250, 246, 0.96) !important; }
     div[data-testid="stTable"] th, div[data-testid="stTable"] td { color: var(--ink) !important; border-color: #ece5d9 !important; }
-    [data-testid="stVegaLiteChart"] { background: transparent !important; border: none !important; box-shadow: none !important; }
+    [data-testid="stVegaLiteChart"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        animation: fade-up 420ms ease-out 120ms both;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
+        }
+    }
     </style>
     """,
     unsafe_allow_html=True,
