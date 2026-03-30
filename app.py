@@ -99,19 +99,10 @@ st.markdown(
         color: #0f172a !important;
         border: 1px solid #cbd5e1 !important;
     }
-    .stSelectbox div[data-baseweb="select"] {
-        position: relative !important;
-    }
-    .stSelectbox div[data-baseweb="select"]::after {
-        content: "▼";
-        position: absolute;
-        right: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #475569;
-        font-size: 0.8rem;
-        pointer-events: none;
-        z-index: 3;
+    .stSelectbox svg {
+        fill: #475569 !important;
+        color: #475569 !important;
+        stroke: #475569 !important;
     }
     div[data-baseweb="popover"] ul,
     div[data-baseweb="popover"] li,
@@ -265,14 +256,6 @@ with right:
         - Optional speech pacing from audio duration
         """
     )
-    st.subheader("What To Say In The Demo")
-    st.markdown(
-        """
-        - This is an early screening support tool, not a diagnosis system.
-        - It converts a short speech interaction into a clear review summary.
-        - The output is explainable, so reviewers can see what influenced the result.
-        """
-    )
 
 
 if analyze:
@@ -376,7 +359,3 @@ for column, row in zip(sample_columns, sample_rows):
                 st.warning(row["Risk Band"])
             else:
                 st.error(row["Risk Band"])
-
-st.caption(
-    "Prototype note: present this as a screening-support demo for early review, not as a medical diagnosis system."
-)
