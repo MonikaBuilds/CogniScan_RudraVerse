@@ -150,24 +150,44 @@ st.markdown(
     .sample-case {
         background: rgba(252, 250, 246, 0.96);
         border: 1px solid var(--line);
-        border-radius: 20px;
-        padding: 1rem;
+        border-radius: 18px;
+        padding: 0.78rem 0.9rem;
         height: 100%;
     }
     .sample-case h4 {
-        margin: 0 0 0.55rem 0;
+        margin: 0;
         color: var(--ink);
-        font-size: 1.05rem;
+        font-size: 1rem;
         font-family: Georgia, "Times New Roman", serif;
-        line-height: 1.2;
-        word-break: break-word;
+        line-height: 1.15;
+        word-break: normal;
+    }
+    .sample-case-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.42rem;
+    }
+    .sample-case-main {
+        min-width: 0;
+    }
+    .sample-case-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
     }
     .sample-meta {
         color: var(--muted);
-        font-size: 0.93rem;
-        margin-bottom: 0.4rem;
-        line-height: 1.45;
+        font-size: 0.84rem;
+        margin-bottom: 0;
+        line-height: 1.3;
         word-break: break-word;
+    }
+    .sample-meta-row {
+        display: block;
+        margin-bottom: 0;
+        min-width: 0;
+        flex: 1;
     }
     .cohort-legend {
         display: flex;
@@ -194,11 +214,11 @@ st.markdown(
     }
     .risk-badge {
         display: inline-block;
-        margin-top: 0.8rem;
         padding: 0.34rem 0.72rem;
         border-radius: 999px;
         font-size: 0.82rem;
         font-weight: 700;
+        white-space: nowrap;
     }
     @media (max-width: 900px) {
         .stats-grid {
@@ -292,24 +312,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown(
-    """
-    <div class="info-card">
-        <strong>Round 1 demo focus</strong><br>
-        One working core functionality: analyze a short patient speech sample and return a structured, explainable screening summary.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.write("")
-
-case_col, info_col = st.columns([1.05, 0.95], gap="large")
-with case_col:
-    selected_case_name = st.selectbox("Load a sample patient", [case["name"] for case in SAMPLE_CASES], index=1)
-    selected_case = get_case(selected_case_name)
-with info_col:
-    st.caption("Use a sample case for the demo, or edit the values manually before running the screening.")
+selected_case_name = st.selectbox("Load a sample patient", [case["name"] for case in SAMPLE_CASES], index=1)
+selected_case = get_case(selected_case_name)
 
 left, right = st.columns([1.18, 0.82], gap="large")
 with left:
@@ -332,6 +336,98 @@ with right:
         - optional speaking pace from audio duration
         """
     )
+cohort_rows = []
+for case in SAMPLE_CASES:
+    result = analyze_screening(
+        transcript=case["transcript"],
+        age=case["age"],
+        memory_task_score=case["memory_task_score"],
+        caregiver_concern=case["caregiver_concern"],
+    )
+    cohort_rows.append(
+        {
+            "Patient": case["name"],
+            "Risk Score": result["risk_score"],
+            "Risk Band": result["category"],
+            "Memory Score": case["memory_task_score"],
+            "Concern": case["caregiver_concern"],
+        }
+    )
+
+cohort_df = pd.DataFrame(cohort_rows).sort_values("Risk Score", ascending=False)
+cohort_df["Score Label"] = cohort_df["Risk Score"].map(lambda value: f"{value:.1f}")
+cohort_base = alt.Chart(cohort_df).encode(
+    y=alt.Y("Patient:N", sort="-x", axis=alt.Axis(title=None, labelLimit=160)),
+    x=alt.X(
+        "Risk Score:Q",
+        scale=alt.Scale(domain=[0, 100]),
+        axis=alt.Axis(title="Risk score", grid=True, values=[0, 20, 40, 60, 80, 100]),
+    ),
+    color=alt.Color(
+        "Risk Band:N",
+        scale=alt.Scale(
+            domain=["Low Risk", "Moderate Risk", "High Risk"],
+            range=["#4f9f75", "#c96f3b", "#b42318"],
+        ),
+        legend=None,
+    ),
+    tooltip=["Patient", "Risk Score", "Risk Band"],
+)
+cohort_bars = cohort_base.mark_bar(cornerRadiusTopRight=10, cornerRadiusBottomRight=10, size=28)
+cohort_labels = cohort_base.mark_text(
+    align="left",
+    baseline="middle",
+    dx=8,
+    color="#5b3420",
+    fontWeight=700,
+).encode(text="Score Label:N")
+cohort_chart = (
+    (cohort_bars + cohort_labels)
+    .properties(height=190, padding={"left": 8, "right": 28, "top": 8, "bottom": 6})
+    .configure_view(strokeWidth=0)
+    .configure_axis(
+        labelColor="#6f695f",
+        titleColor="#6f695f",
+        gridColor="#ede6da",
+        domain=False,
+        tickColor="#d8d0c2",
+    )
+)
+
+with right:
+    st.write("")
+    st.subheader("Sample Cohort")
+    st.markdown(
+        """
+        <div class="cohort-legend">
+            <span class="legend-pill"><span class="legend-dot" style="background:#4f9f75;"></span>Low Risk</span>
+            <span class="legend-pill"><span class="legend-dot" style="background:#c96f3b;"></span>Moderate Risk</span>
+            <span class="legend-pill"><span class="legend-dot" style="background:#b42318;"></span>High Risk</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.altair_chart(cohort_chart, use_container_width=True)
+    for row in cohort_rows:
+        badge_bg, badge_fg = badge_for(row["Risk Band"])
+        st.markdown(
+            f"""
+            <div class="sample-case" style="margin-top:0.18rem; margin-bottom:0.35rem;">
+                <div class="sample-case-row">
+                    <div class="sample-case-main">
+                        <h4>{row['Patient']}</h4>
+                    </div>
+                    <div class="sample-case-bottom">
+                        <div class="sample-meta-row">
+                            <div class="sample-meta">Risk: {row['Risk Score']} | Memory: {row['Memory Score']} / 10 | Concern: {row['Concern']} / 5</div>
+                        </div>
+                        <span class="risk-badge" style="background:{badge_bg}; color:{badge_fg};">{row['Risk Band']}</span>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 if analyze:
     audio_path = None
@@ -475,92 +571,3 @@ if analyze:
             )
         )
         st.altair_chart(final_chart, use_container_width=True)
-
-st.write("")
-st.subheader("Sample Cohort")
-cohort_rows = []
-for case in SAMPLE_CASES:
-    result = analyze_screening(
-        transcript=case["transcript"],
-        age=case["age"],
-        memory_task_score=case["memory_task_score"],
-        caregiver_concern=case["caregiver_concern"],
-    )
-    cohort_rows.append(
-        {
-            "Patient": case["name"],
-            "Risk Score": result["risk_score"],
-            "Risk Band": result["category"],
-            "Memory Score": case["memory_task_score"],
-            "Concern": case["caregiver_concern"],
-        }
-    )
-
-cohort_df = pd.DataFrame(cohort_rows).sort_values("Risk Score", ascending=False)
-cohort_df["Score Label"] = cohort_df["Risk Score"].map(lambda value: f"{value:.1f}")
-cohort_base = alt.Chart(cohort_df).encode(
-    y=alt.Y("Patient:N", sort="-x", axis=alt.Axis(title=None, labelLimit=160)),
-    x=alt.X(
-        "Risk Score:Q",
-        scale=alt.Scale(domain=[0, 100]),
-        axis=alt.Axis(title="Risk score", grid=True, values=[0, 20, 40, 60, 80, 100]),
-    ),
-    color=alt.Color(
-        "Risk Band:N",
-        scale=alt.Scale(
-            domain=["Low Risk", "Moderate Risk", "High Risk"],
-            range=["#4f9f75", "#c96f3b", "#b42318"],
-        ),
-        legend=None,
-    ),
-    tooltip=["Patient", "Risk Score", "Risk Band"],
-)
-cohort_bars = cohort_base.mark_bar(cornerRadiusTopRight=10, cornerRadiusBottomRight=10, size=28)
-cohort_labels = cohort_base.mark_text(
-    align="left",
-    baseline="middle",
-    dx=8,
-    color="#5b3420",
-    fontWeight=700,
-).encode(text="Score Label:N")
-cohort_chart = (
-    (cohort_bars + cohort_labels)
-    .properties(height=190, padding={"left": 8, "right": 28, "top": 8, "bottom": 6})
-    .configure_view(strokeWidth=0)
-    .configure_axis(
-        labelColor="#6f695f",
-        titleColor="#6f695f",
-        gridColor="#ede6da",
-        domain=False,
-        tickColor="#d8d0c2",
-    )
-)
-
-cohort_left, cohort_right = st.columns([1.15, 0.85], gap="large")
-with cohort_left:
-    st.markdown(
-        """
-        <div class="cohort-legend">
-            <span class="legend-pill"><span class="legend-dot" style="background:#4f9f75;"></span>Low Risk</span>
-            <span class="legend-pill"><span class="legend-dot" style="background:#c96f3b;"></span>Moderate Risk</span>
-            <span class="legend-pill"><span class="legend-dot" style="background:#b42318;"></span>High Risk</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.altair_chart(cohort_chart, use_container_width=True)
-with cohort_right:
-    for row in cohort_rows:
-        badge_bg, badge_fg = badge_for(row["Risk Band"])
-        st.markdown(
-            f"""
-            <div class="sample-case" style="margin-bottom:0.9rem;">
-                <h4>{row['Patient']}</h4>
-                <div class="sample-meta">Risk score: {row['Risk Score']}</div>
-                <div class="sample-meta">Memory score: {row['Memory Score']} / 10</div>
-                <div class="sample-meta">Caregiver concern: {row['Concern']} / 5</div>
-                <span class="risk-badge" style="background:{badge_bg}; color:{badge_fg};">{row['Risk Band']}</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
