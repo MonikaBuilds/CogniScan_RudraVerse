@@ -30,9 +30,28 @@ def tone_for(category: str) -> tuple[str, str]:
     return "#f0fdf4", "#027a48"
 
 
+def badge_for(category: str) -> tuple[str, str]:
+    if category == "High Risk":
+        return "#fef3f2", "#b42318"
+    if category == "Moderate Risk":
+        return "#fff7ed", "#b54708"
+    return "#ecfdf3", "#027a48"
+
+
 st.markdown(
     """
     <style>
+    :root {
+        --paper: #f7f4ef;
+        --surface: #fcfaf6;
+        --ink: #1f1d1a;
+        --muted: #6f695f;
+        --line: #d8d0c2;
+        --panel: #171717;
+        --panel-soft: #242321;
+        --accent: #c96f3b;
+        --accent-soft: #f3e5d8;
+    }
     [data-testid="stHeader"] {
         background: transparent;
         border-bottom: none;
@@ -41,50 +60,79 @@ st.markdown(
         display: none;
     }
     .stApp {
-        background: #f8fafc;
+        background: var(--paper);
     }
     .block-container {
-        max-width: 1100px;
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        max-width: 1120px;
+        padding-top: 2.4rem;
+        padding-bottom: 2.5rem;
     }
     .hero {
-        background: #0f172a;
-        color: white;
-        border-radius: 20px;
-        padding: 28px 30px;
-        margin-bottom: 1rem;
+        background: var(--panel);
+        color: #f8f4ee;
+        border-radius: 28px;
+        padding: 36px 38px;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 20px 50px rgba(23, 23, 23, 0.14);
     }
     .hero h1, .hero p, .hero div {
-        color: white !important;
+        color: #f8f4ee !important;
     }
     .eyebrow {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
-        opacity: 0.8;
-        margin-bottom: 0.6rem;
+        letter-spacing: 0.18em;
+        opacity: 0.72;
+        margin-bottom: 0.8rem;
     }
     .subtle-card {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 18px 18px;
-        color: #0f172a !important;
+        background: rgba(253, 251, 247, 0.82);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 20px 20px;
+        color: var(--ink) !important;
     }
     .subtle-card strong,
     .subtle-card div,
     .subtle-card p {
-        color: #0f172a !important;
+        color: var(--ink) !important;
     }
     .result-card {
-        border-radius: 18px;
-        padding: 18px 18px;
-        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        padding: 20px 20px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+    }
+    .sample-case {
+        background: rgba(253, 251, 247, 0.92);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 1rem;
+        height: 100%;
+    }
+    .sample-case h4 {
+        margin: 0 0 0.55rem 0;
+        color: var(--ink);
+        font-size: 1.05rem;
+        font-family: Georgia, "Times New Roman", serif;
+    }
+    .sample-meta {
+        color: var(--muted);
+        font-size: 0.93rem;
+        margin-bottom: 0.3rem;
+    }
+    .risk-badge {
+        display: inline-block;
+        margin-top: 0.85rem;
+        padding: 0.34rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
     }
     .small-note {
-        color: #475569;
-        font-size: 0.95rem;
+        color: var(--muted);
+        font-size: 0.96rem;
     }
     .stSelectbox label,
     .stSlider label,
@@ -92,40 +140,51 @@ st.markdown(
     .stFileUploader label,
     .stMarkdown,
     .stCaption {
-        color: #0f172a !important;
+        color: var(--ink) !important;
+    }
+    h1, h2, h3 {
+        color: var(--ink) !important;
+        font-family: Georgia, "Times New Roman", serif;
+        letter-spacing: -0.02em;
+    }
+    p, li, span, label, div {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     .stSelectbox div[data-baseweb="select"] > div {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
+        background: rgba(253, 251, 247, 0.92) !important;
+        color: var(--ink) !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 14px !important;
+        min-height: 48px !important;
     }
     .stSelectbox svg {
-        fill: #475569 !important;
-        color: #475569 !important;
-        stroke: #475569 !important;
+        fill: var(--muted) !important;
+        color: var(--muted) !important;
+        stroke: var(--muted) !important;
     }
     div[data-baseweb="popover"] ul,
     div[data-baseweb="popover"] li,
     div[role="listbox"] div {
-        background: #ffffff !important;
-        color: #0f172a !important;
+        background: var(--surface) !important;
+        color: var(--ink) !important;
     }
     .stTextArea textarea {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
+        background: rgba(253, 251, 247, 0.96) !important;
+        color: var(--ink) !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 16px !important;
     }
     .stTextArea textarea::placeholder {
-        color: #64748b !important;
+        color: var(--muted) !important;
     }
     [data-testid="stFileUploaderDropzone"] {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
+        background: rgba(253, 251, 247, 0.96) !important;
+        color: var(--ink) !important;
+        border: 1px solid var(--line) !important;
         box-shadow: none !important;
-        border-radius: 12px !important;
-        padding-top: 0.25rem !important;
-        padding-bottom: 0.25rem !important;
+        border-radius: 16px !important;
+        padding-top: 0.45rem !important;
+        padding-bottom: 0.45rem !important;
         position: relative !important;
         padding-left: 4.25rem !important;
     }
@@ -138,9 +197,9 @@ st.markdown(
         width: 2rem;
         height: 2rem;
         border-radius: 999px;
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-        color: #2563eb;
+        background: #efe6d8;
+        border: 1px solid #dec8ad;
+        color: var(--accent);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -163,25 +222,55 @@ st.markdown(
         border: none !important;
     }
     [data-testid="stFileUploaderDropzoneInstructions"] {
-        color: #0f172a !important;
+        color: var(--ink) !important;
     }
     [data-testid="stFileUploaderDropzoneInstructions"] small,
     [data-testid="stFileUploaderDropzoneInstructions"] span {
-        color: #475569 !important;
+        color: var(--muted) !important;
     }
     [data-testid="stFileUploaderDropzone"] button {
-        background: #0f172a !important;
-        color: #ffffff !important;
-        border: 1px solid #0f172a !important;
+        background: var(--panel) !important;
+        color: #f8f4ee !important;
+        border: 1px solid var(--panel) !important;
+        border-radius: 12px !important;
     }
     .stButton > button {
-        background: #ef4444 !important;
-        color: #ffffff !important;
-        border: 1px solid #ef4444 !important;
+        background: var(--panel) !important;
+        color: #f8f4ee !important;
+        border: 1px solid var(--panel) !important;
+        border-radius: 14px !important;
+        min-height: 50px !important;
+        font-weight: 600 !important;
     }
     .stButton > button:hover {
-        background: #dc2626 !important;
-        border-color: #dc2626 !important;
+        background: var(--panel-soft) !important;
+        border-color: var(--panel-soft) !important;
+    }
+    [data-testid="stMetric"] {
+        background: rgba(253, 251, 247, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px 16px;
+    }
+    [data-testid="stMetricLabel"], [data-testid="stMetricValue"] {
+        color: var(--ink) !important;
+    }
+    [data-testid="stTable"] {
+        background: rgba(253, 251, 247, 0.96);
+        border-radius: 16px;
+    }
+    div[data-testid="stTable"] table {
+        background: rgba(253, 251, 247, 0.96) !important;
+    }
+    div[data-testid="stTable"] th,
+    div[data-testid="stTable"] td {
+        color: var(--ink) !important;
+        border-color: #ece5d9 !important;
+    }
+    [data-testid="stVegaLiteChart"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }
     </style>
     """,
@@ -310,15 +399,41 @@ if analyze:
             ]
         ).sort_values("Relative Risk", ascending=False)
         st.markdown("#### Relative Feature Impact")
+        explanation_df["Label"] = explanation_df["Relative Risk"].map(lambda value: f"{value:.2f}")
         chart = (
             alt.Chart(explanation_df)
-            .mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6, color="#2563eb")
+            .mark_bar(cornerRadiusTopRight=8, cornerRadiusBottomRight=8, color="#c96f3b", size=24)
             .encode(
-                x=alt.X("Model Signal:N", sort=None, axis=alt.Axis(title=None, labelAngle=-40, labelLimit=180)),
-                y=alt.Y("Relative Risk:Q", axis=alt.Axis(title="Risk Weight"), scale=alt.Scale(domain=[0, 1])),
+                y=alt.Y("Model Signal:N", sort="-x", axis=alt.Axis(title=None, labelLimit=220)),
+                x=alt.X(
+                    "Relative Risk:Q",
+                    axis=alt.Axis(title=None, labels=False, ticks=False, grid=True),
+                    scale=alt.Scale(domain=[0, 1]),
+                ),
                 tooltip=["Model Signal", "Relative Risk"],
             )
             .properties(height=320)
+        )
+        labels = (
+            alt.Chart(explanation_df)
+            .mark_text(align="left", baseline="middle", dx=8, color="#7a3f1d", fontWeight=700)
+            .encode(
+                y=alt.Y("Model Signal:N", sort="-x"),
+                x=alt.X("Relative Risk:Q"),
+                text="Label:N",
+            )
+        )
+        chart = (
+            (chart + labels)
+            .properties(padding={"left": 24, "right": 28, "top": 10, "bottom": 10})
+            .configure_view(strokeWidth=0)
+            .configure_axis(
+                labelColor="#6f695f",
+                titleColor="#6f695f",
+                gridColor="#ede6da",
+                domain=False,
+                ticks=False,
+            )
         )
         st.altair_chart(chart, use_container_width=True)
 
@@ -347,15 +462,17 @@ for case in SAMPLE_CASES:
 sample_columns = st.columns(3, gap="large")
 for column, row in zip(sample_columns, sample_rows):
     with column:
-        with st.container(border=True):
-            st.markdown(f"**{row['Patient']}**")
-            st.caption(
-                f"Age: {row['Age']} | Memory: {row['Memory Score']}/10 | Caregiver concern: {row['Caregiver Concern']}/5"
-            )
-            st.write(f"Risk score: {row['Risk Score']}")
-            if row["Risk Band"] == "Low Risk":
-                st.success(row["Risk Band"])
-            elif row["Risk Band"] == "Moderate Risk":
-                st.warning(row["Risk Band"])
-            else:
-                st.error(row["Risk Band"])
+        badge_bg, badge_fg = badge_for(row["Risk Band"])
+        st.markdown(
+            f"""
+            <div class="sample-case">
+                <h4>{row['Patient']}</h4>
+                <div class="sample-meta">Age: {row['Age']}</div>
+                <div class="sample-meta">Memory score: {row['Memory Score']} / 10</div>
+                <div class="sample-meta">Caregiver concern: {row['Caregiver Concern']} / 5</div>
+                <div class="sample-meta">Risk score: {row['Risk Score']}</div>
+                <span class="risk-badge" style="background:{badge_bg}; color:{badge_fg};">{row['Risk Band']}</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
