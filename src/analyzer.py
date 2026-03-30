@@ -4,7 +4,6 @@ import math
 import re
 import statistics
 import wave
-from collections import Counter
 from pathlib import Path
 
 
@@ -93,10 +92,7 @@ def estimate_audio_duration_seconds(audio_path: str | None) -> float | None:
         return None
 
     path = Path(audio_path)
-    if not path.exists():
-        return None
-
-    if path.suffix.lower() != ".wav":
+    if not path.exists() or path.suffix.lower() != ".wav":
         return None
 
     with wave.open(str(path), "rb") as wav_file:
@@ -144,7 +140,7 @@ def analyze_screening(
         "diversity_risk": 1 - _normalize(diversity, 0.28, 0.65),
         "repetition_risk": _normalize(repetition, 0.0, 0.08),
         "hesitation_risk": _normalize(hesitation, 0.0, 0.08),
-        "confusion_risk": _normalize(confusion, 0, 3),
+        "confusion_risk": _normalize(confusion, 0, 4),
         "pause_risk": _normalize(pause_markers, 0, 6),
         "sentence_risk": 1 - _normalize(avg_sentence_words, 6, 16),
     }
@@ -156,14 +152,14 @@ def analyze_screening(
 
     weights = {
         "age_risk": 0.08,
-        "memory_risk": 0.22,
-        "caregiver_risk": 0.15,
-        "diversity_risk": 0.12,
-        "repetition_risk": 0.10,
+        "memory_risk": 0.24,
+        "caregiver_risk": 0.16,
+        "diversity_risk": 0.10,
+        "repetition_risk": 0.09,
         "hesitation_risk": 0.08,
-        "confusion_risk": 0.10,
+        "confusion_risk": 0.11,
         "pause_risk": 0.05,
-        "sentence_risk": 0.05,
+        "sentence_risk": 0.04,
         "speaking_rate_risk": 0.05,
     }
 
@@ -173,13 +169,60 @@ def analyze_screening(
 
     if risk_score >= 70:
         category = "High Risk"
+        narrative = "This screening shows several strong warning signals that warrant prompt follow-up."
         recommendation = "Recommend specialist referral, caregiver briefing, and longitudinal follow-up within 2 weeks."
+        next_steps = [
+            "Arrange specialist cognitive evaluation",
+            "Share the screening summary with the caregiver",
+            "Plan repeat monitoring on the next visit",
+        ]
     elif risk_score >= 45:
         category = "Moderate Risk"
+        narrative = "This screening shows meaningful early-warning signals that should be reviewed soon."
         recommendation = "Recommend formal screening, repeated speech checks, and a clinician review within 4 weeks."
+        next_steps = [
+            "Repeat screening within 2 to 4 weeks",
+            "Review medication adherence and routine slips",
+            "Escalate if caregiver concern or confusion increases",
+        ]
     else:
         category = "Low Risk"
+        narrative = "This screening shows limited immediate concern, with monitoring still recommended over time."
         recommendation = "Recommend routine monitoring, lifestyle guidance, and a repeat screening after 3 months."
+        next_steps = [
+            "Continue routine observation",
+            "Repeat screening at the next follow-up",
+            "Track any new confusion or hesitation markers",
+        ]
+
+    sample_quality = round(
+        min(
+            100.0,
+            35
+            + min(word_count, 90) / 90 * 35
+            + min(len(sentences), 6) / 6 * 15
+            + (15 if speaking_rate is not None else 0),
+        ),
+        1,
+    )
+
+    observed_markers = []
+    if confusion >= 2:
+        observed_markers.append("Multiple confusion phrases were detected")
+    if hesitation >= 0.02:
+        observed_markers.append("Noticeable hesitation markers appeared in speech")
+    if repetition >= 0.02:
+        observed_markers.append("Repeated phrasing pattern is present")
+    if avg_sentence_words < 10:
+        observed_markers.append("Sentence structure is relatively short and compressed")
+    if caregiver_concern >= 4:
+        observed_markers.append("Caregiver concern is elevated")
+    if memory_task_score <= 5:
+        observed_markers.append("Memory task performance is below the safer range")
+    if speaking_rate is not None and speaking_rate < 95:
+        observed_markers.append("Speaking rate is slower than the expected baseline")
+    if not observed_markers:
+        observed_markers.append("No major linguistic red flags were observed in this sample")
 
     top_drivers = sorted(feature_scores.items(), key=lambda item: item[1], reverse=True)[:4]
     driver_labels = {
@@ -209,7 +252,11 @@ def analyze_screening(
     return {
         "risk_score": risk_score,
         "category": category,
+        "narrative": narrative,
         "recommendation": recommendation,
+        "next_steps": next_steps,
+        "sample_quality": sample_quality,
+        "observed_markers": observed_markers,
         "top_drivers": [driver_labels[name] for name, _ in top_drivers],
         "feature_scores": feature_scores,
         "feature_summary": feature_summary,
