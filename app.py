@@ -6,6 +6,7 @@ from pathlib import Path
 import altair as alt
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from src.analyzer import analyze_screening
 from src.sample_cases import SAMPLE_CASES
@@ -447,7 +448,24 @@ if analyze:
 
     background, accent = tone_for(result["category"])
     st.write("")
+    st.markdown('<div id="output-section"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-heading">Output</div>', unsafe_allow_html=True)
+    components.html(
+        """
+        <script>
+        const scrollToOutput = () => {
+          const target = window.parent.document.getElementById("output-section");
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        };
+        window.parent.requestAnimationFrame(() => {
+          window.parent.requestAnimationFrame(scrollToOutput);
+        });
+        </script>
+        """,
+        height=0,
+    )
     st.markdown(
         f"""
         <div class="output-shell">
