@@ -11,7 +11,7 @@ from src.analyzer import analyze_screening
 from src.sample_cases import SAMPLE_CASES
 
 
-st.set_page_config(page_title="CogniScan", page_icon="??", layout="wide")
+st.set_page_config(page_title="CogniScan", page_icon="C", layout="wide")
 
 
 def get_case(case_name: str) -> dict:
@@ -129,47 +129,6 @@ st.markdown(
         padding: 1rem 1.1rem;
         box-shadow: inset 4px 0 0 var(--accent);
     }
-    .section-title {
-        margin-top: 0;
-        margin-bottom: 0.7rem;
-        color: var(--ink);
-        font-family: Georgia, "Times New Roman", serif;
-    }
-    .marker-pill {
-        display: inline-block;
-        margin-right: 0.45rem;
-        margin-bottom: 0.55rem;
-        padding: 0.4rem 0.72rem;
-        border-radius: 999px;
-        background: #f2ece3;
-        color: var(--ink);
-        border: 1px solid #e4dacd;
-        font-size: 0.87rem;
-    }
-    .output-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
-    }
-    .step-card {
-        background: rgba(252, 250, 246, 0.96);
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 0.95rem 1rem;
-        height: 100%;
-    }
-    .step-card h4 {
-        margin: 0 0 0.45rem 0;
-        color: var(--ink);
-        font-size: 1rem;
-    }
-    .step-card p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.92rem;
-        line-height: 1.5;
-        word-break: break-word;
-    }
     .list-shell {
         background: rgba(252, 250, 246, 0.96);
         border: 1px solid var(--line);
@@ -187,35 +146,6 @@ st.markdown(
     .list-item:first-child {
         border-top: none;
         padding-top: 0;
-    }
-    .step-row {
-        display: grid;
-        grid-template-columns: 52px 1fr;
-        gap: 0.85rem;
-        align-items: start;
-        padding: 0.9rem 0;
-        border-top: 1px solid #ece5d9;
-    }
-    .step-row:first-child {
-        border-top: none;
-        padding-top: 0;
-    }
-    .step-number {
-        width: 2.2rem;
-        height: 2.2rem;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #efe6d8;
-        color: #8c4a24;
-        font-weight: 700;
-        font-size: 0.95rem;
-    }
-    .step-copy {
-        color: var(--ink);
-        line-height: 1.55;
-        word-break: break-word;
     }
     .sample-case {
         background: rgba(252, 250, 246, 0.96);
@@ -270,38 +200,7 @@ st.markdown(
         font-size: 0.82rem;
         font-weight: 700;
     }
-    .metric-panel {
-        background: rgba(252, 250, 246, 0.96);
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 0.85rem 1rem;
-        height: 100%;
-    }
-    .metric-title {
-        color: var(--muted);
-        font-size: 0.82rem;
-        margin-bottom: 0.35rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-    .metric-text {
-        color: var(--ink);
-        font-size: 1.45rem;
-        line-height: 1.1;
-        font-family: Georgia, "Times New Roman", serif;
-        word-break: break-word;
-    }
-    .metric-subtext {
-        margin-top: 0.22rem;
-        color: var(--muted);
-        font-size: 0.86rem;
-        line-height: 1.35;
-        word-break: break-word;
-    }
     @media (max-width: 900px) {
-        .output-grid {
-            grid-template-columns: 1fr;
-        }
         .stats-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }

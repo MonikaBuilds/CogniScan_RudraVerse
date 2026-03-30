@@ -1,45 +1,46 @@
-# CogniScan Intelligence Suite
+# CogniScan
 
-CogniScan is a polished Round 1 prototype for `HC-02: AI-Based Early Cognitive Decline Detection System`.
+CogniScan is a Streamlit prototype for the Nakshatra problem statement:
+`HC-02: AI-Based Early Cognitive Decline Detection System`.
 
-It is built as a speech-first clinical intelligence experience with:
+The current build focuses on one clear Round 1 workflow:
 
-- a premium product-style UI
-- explainable screening logic
-- a synthetic patient cohort
-- a deployment roadmap
-- ready-to-use hackathon submission content
+- load or enter a short patient speech sample
+- add memory-task score and caregiver concern
+- generate an explainable screening summary
+- compare the result against a small sample cohort
 
-## What is included
+## Project Structure
 
 - `app.py`
-  Streamlit app with executive overview, screening studio, cohort analytics, operations story, and submission kit
+  Main Streamlit application
 - `src/analyzer.py`
-  Explainable risk-scoring engine using transcript, caregiver, memory, and optional WAV pacing signals
+  Screening logic and scoring helpers
 - `src/sample_cases.py`
-  Synthetic demo patients for low, moderate, and high-risk walkthroughs
-- `docs/architecture.md`
-  Product and system architecture narrative
+  Demo patient cases used in the UI
 - `docs/demo-script.md`
-  Demo flow for judges and video recording
+  Demo flow for presentation and recording
 - `docs/ppt-content.md`
-  Slide-by-slide content for your presentation
+  Slide content for the hackathon PPT
+- `docs/architecture.md`
+  High-level product and system explanation
+- `docs/team-guide.md`
+  Setup and run guide for teammates
 
-## Local setup
+## Quick Start
 
 ```powershell
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Recommended presentation flow
+## Current Demo Flow
 
-1. Start on the executive overview to frame the problem.
-2. Open the screening studio and run one patient case live.
-3. Show the explainability chart and recommendation.
-4. Switch to the cohort lab to show case separation.
-5. End on the operations and submission tabs to prove scale and product thinking.
+1. Load `Ramesh Patil` from the sample selector.
+2. Run the screening.
+3. Show the risk score, risk band, observed markers, and next steps.
+4. Use the cohort section to compare low, moderate, and high-risk cases.
 
-## Positioning for Round 1
+## Note
 
-This is not a diagnosis engine. Present it as an early-warning screening assistant for clinicians and caregivers that helps identify patients who should receive deeper evaluation sooner.
+This prototype should be presented as a screening-support system for early review, not as a medical diagnosis tool.
